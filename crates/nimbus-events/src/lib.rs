@@ -3,13 +3,15 @@
 //! This is the heart of our plugin system. Events flow through here
 //! and plugins subscribe to what they care about.
 
+use std::collections::HashSet;
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use dashmap::DashMap;
+use futures::future;
 use nimbus_types::events::{
     Event, EventBus as EventBusTrait, EventEnvelope, EventFilter, EventHandler, EventType,
 };
-use std::collections::HashSet;
-use std::sync::Arc;
 use tokio::sync::RwLock;
 use tracing::{debug, error, info, warn};
 
@@ -115,7 +117,7 @@ impl InMemoryEventBus {
         let timeout = std::time::Duration::from_secs(30);
         let results = tokio::time::timeout(
             timeout,
-            futures::future::join_all(tasks)
+            future::join_all(tasks)
         ).await;
 
         match results {
@@ -269,8 +271,8 @@ impl EventBusTrait for InMemoryEventBus {
 
         // Remove from subscription index
         let mut subs = self.subscriptions.write().await;
-        for (_, handlers) in subs.iter_mut() {
-            handlers.remove(name);
+        for mut entry in subs.iter_mut() {
+            entry.value_mut().remove(name);
         }
 
         Ok(())
@@ -282,9 +284,7 @@ impl EventBusTrait for InMemoryEventBus {
 }
 
 // Re-export for convenience
-pub use nimbus_types::events::{
-    Event, EventEnvelope, EventFilter, EventHandler, EventMetadata, EventPriority, EventType,
-};
+pub use nimbus_types::events::{EventMetadata, EventPriority};
 
 // Add glob matching support
 mod glob_match {
@@ -293,14 +293,14 @@ mod glob_match {
         if pattern == "*" {
             return true;
         }
-        if pattern.starts_with("*") && pattern.ends_with("*") {
+        if pattern.starts_with('*') && pattern.ends_with('*') {
             let inner = &pattern[1..pattern.len() - 1];
             return text.contains(inner);
         }
-        if pattern.starts_with("*") {
+        if pattern.starts_with('*') {
             return text.ends_with(&pattern[1..]);
         }
-        if pattern.ends_with("*") {
+        if pattern.ends_with('*') {
             return text.starts_with(&pattern[..pattern.len() - 1]);
         }
         pattern == text
@@ -309,6 +309,3 @@ mod glob_match {
 
 #[cfg(test)]
 mod tests;
-
-// Add missing dependencies
-use futures;

@@ -2,11 +2,13 @@
 //!
 //! Tracks event processing performance, handler success rates, etc.
 
-use nimbus_types::events::EventType;
+use std::time::Duration;
+
 use prometheus::{
     register_counter_vec, register_histogram_vec, CounterVec, HistogramVec,
 };
-use std::time::Duration;
+
+use nimbus_types::events::EventType;
 
 pub struct EventBusMetrics {
     events_received: CounterVec,
@@ -23,31 +25,77 @@ impl EventBusMetrics {
                 "nimbus_events_received_total",
                 "Total number of events received",
                 &["event_type"]
-            ).unwrap(),
+            ).unwrap_or_else(|_| {
+                // In tests, metrics might already be registered
+                CounterVec::new(
+                    prometheus::Opts::new(
+                        "nimbus_events_received_total",
+                        "Total number of events received",
+                    ),
+                    &["event_type"],
+                )
+                .unwrap()
+            }),
             
             events_processed: register_histogram_vec!(
                 "nimbus_events_processing_duration_seconds",
                 "Time taken to process events",
                 &["event_type"]
-            ).unwrap(),
+            ).unwrap_or_else(|_| {
+                HistogramVec::new(
+                    prometheus::HistogramOpts::new(
+                        "nimbus_events_processing_duration_seconds",
+                        "Time taken to process events",
+                    ),
+                    &["event_type"],
+                )
+                .unwrap()
+            }),
             
             events_timeout: register_counter_vec!(
                 "nimbus_events_timeout_total",
                 "Total number of events that timed out",
                 &["event_type"]
-            ).unwrap(),
+            ).unwrap_or_else(|_| {
+                CounterVec::new(
+                    prometheus::Opts::new(
+                        "nimbus_events_timeout_total",
+                        "Total number of events that timed out",
+                    ),
+                    &["event_type"],
+                )
+                .unwrap()
+            }),
             
             handler_success: register_counter_vec!(
                 "nimbus_handler_success_total",
                 "Total number of successful handler executions",
                 &["handler"]
-            ).unwrap(),
+            ).unwrap_or_else(|_| {
+                CounterVec::new(
+                    prometheus::Opts::new(
+                        "nimbus_handler_success_total",
+                        "Total number of successful handler executions",
+                    ),
+                    &["handler"],
+                )
+                .unwrap()
+            }),
             
             handler_failure: register_counter_vec!(
                 "nimbus_handler_failure_total",
                 "Total number of failed handler executions",
                 &["handler"]
-            ).unwrap(),
+            ).unwrap_or_else(|_| {
+                CounterVec::new(
+                    prometheus::Opts::new(
+                        "nimbus_handler_failure_total",
+                        "Total number of failed handler executions",
+                    ),
+                    &["handler"],
+                )
+                .unwrap()
+            }),
         }
     }
 

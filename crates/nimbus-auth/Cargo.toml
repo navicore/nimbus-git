@@ -1,5 +1,5 @@
 [package]
-name = "nimbus-events"
+name = "nimbus-auth"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -8,34 +8,25 @@ license.workspace = true
 [dependencies]
 nimbus-types = { path = "../nimbus-types" }
 
+# Auth
+jsonwebtoken.workspace = true
+argon2.workspace = true
+
 # Async
 tokio.workspace = true
 async-trait.workspace = true
-
-# Data structures
-dashmap = "6.0"
-arc-swap = "1.7"
 
 # Serialization
 serde.workspace = true
 serde_json.workspace = true
 
-# Channels
-async-channel = "2.1"
-futures = "0.3"
-
-# Observability
-tracing.workspace = true
-prometheus.workspace = true
-
-# Error handling
-thiserror.workspace = true
-anyhow.workspace = true
-
 # Utils
 uuid.workspace = true
 time.workspace = true
 
-[dev-dependencies]
-tokio = { workspace = true, features = ["test-util", "macros", "rt-multi-thread"] }
-criterion = "0.5"
+# Observability
+tracing.workspace = true
+
+# Error handling
+thiserror.workspace = true
+anyhow.workspace = true

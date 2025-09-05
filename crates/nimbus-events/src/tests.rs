@@ -1,8 +1,8 @@
 //! Tests for the event bus
 
-use super::*;
-use nimbus_types::{Commit, Repository};
 use std::sync::atomic::{AtomicUsize, Ordering};
+
+use super::*;
 use uuid::Uuid;
 
 /// Test handler that counts events

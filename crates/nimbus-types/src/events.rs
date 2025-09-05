@@ -3,11 +3,14 @@
 //! The event system is the heart of our plugin architecture.
 //! Core emits events, plugins subscribe and react.
 
-use crate::{Commit, Repository};
-use async_trait::async_trait;
+use std::hash::Hash;
+
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use uuid::Uuid;
+
+use async_trait::async_trait;
+
+use crate::{Commit, Repository};
 
 /// Event subscription filter
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -20,7 +23,7 @@ pub struct EventFilter {
     pub branches: Vec<String>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub enum EventType {
     Push,
     PullRequest,
