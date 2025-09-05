@@ -6,6 +6,7 @@ members = [
     "crates/nimbus-git",
     "crates/nimbus-web",
     "crates/nimbus-auth",
+    "crates/nimbus-ui",
 ]
 
 [workspace.package]
@@ -23,7 +24,7 @@ async-trait = "0.1"
 
 # Web frameworks
 warp = "0.3"
-leptos = { version = "0.6", features = ["ssr"] }
+leptos = { version = "0.6" }
 leptos_meta = { version = "0.6" }
 leptos_router = { version = "0.6" }
 leptos_axum = { version = "0.6" }

@@ -1,0 +1,47 @@
+[package]
+name = "nimbus-ui"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[dependencies]
+nimbus-types = { path = "../nimbus-types" }
+
+# Leptos
+leptos = { version = "0.6", features = ["csr", "nightly"] }
+leptos_meta = { version = "0.6", features = ["csr", "nightly"] }
+leptos_router = { version = "0.6", features = ["csr", "nightly"] }
+
+# Web
+web-sys = { version = "0.3", features = [
+    "Document",
+    "Element", 
+    "HtmlElement",
+    "Window",
+    "Storage",
+    "Request",
+    "RequestInit",
+    "RequestMode",
+    "Response",
+    "Headers",
+] }
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+gloo-net = { version = "0.5", features = ["http"] }
+gloo-storage = "0.3"
+
+# Serialization
+serde.workspace = true
+serde_json.workspace = true
+
+# UI Components
+tailwind-fuse = "0.3"
+
+# Utils
+console_error_panic_hook = "0.1"
+wasm-logger = "0.2"
+log = "0.4"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
