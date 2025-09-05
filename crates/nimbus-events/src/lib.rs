@@ -36,7 +36,7 @@ pub struct InMemoryEventBus {
 impl InMemoryEventBus {
     pub fn new(buffer_size: usize) -> Self {
         let (sender, receiver) = async_channel::bounded(buffer_size);
-        
+
         Self {
             handlers: Arc::new(DashMap::new()),
             subscriptions: Arc::new(RwLock::new(DashMap::new())),
@@ -69,7 +69,7 @@ impl InMemoryEventBus {
     async fn process_event(&self, envelope: EventEnvelope) {
         let event_type = Self::event_type(&envelope.event);
         debug!("Processing event: {:?}", event_type);
-        
+
         // Record metrics
         self.metrics.event_received(event_type);
         let start = std::time::Instant::now();
@@ -77,9 +77,7 @@ impl InMemoryEventBus {
         // Get handlers interested in this event
         let handler_names = {
             let subs = self.subscriptions.read().await;
-            subs.get(&event_type)
-                .map(|entry| entry.value().clone())
-                .unwrap_or_default()
+            subs.get(&event_type).map(|entry| entry.value().clone()).unwrap_or_default()
         };
 
         // Dispatch to all interested handlers
@@ -90,18 +88,21 @@ impl InMemoryEventBus {
                 let envelope_clone = envelope.clone();
                 let metrics = self.metrics.clone();
                 let handler_name = name.clone();
-                
+
                 // Check if event matches handler's filter
                 if Self::matches_filter(&handler.filter(), &envelope_clone) {
                     tasks.push(tokio::spawn(async move {
                         debug!("Dispatching to handler: {}", handler_name);
                         let handler_start = std::time::Instant::now();
-                        
+
                         match handler.handle(envelope_clone).await {
                             Ok(_) => {
                                 metrics.handler_success(&handler_name);
-                                debug!("Handler {} completed in {:?}", 
-                                    handler_name, handler_start.elapsed());
+                                debug!(
+                                    "Handler {} completed in {:?}",
+                                    handler_name,
+                                    handler_start.elapsed()
+                                );
                             }
                             Err(e) => {
                                 metrics.handler_failure(&handler_name);
@@ -115,10 +116,7 @@ impl InMemoryEventBus {
 
         // Wait for all handlers to complete (with timeout)
         let timeout = std::time::Duration::from_secs(30);
-        let results = tokio::time::timeout(
-            timeout,
-            future::join_all(tasks)
-        ).await;
+        let results = tokio::time::timeout(timeout, future::join_all(tasks)).await;
 
         match results {
             Ok(_) => {
@@ -136,16 +134,15 @@ impl InMemoryEventBus {
     fn event_type(event: &Event) -> EventType {
         match event {
             Event::Push { .. } => EventType::Push,
-            Event::PullRequestOpened { .. } 
-            | Event::PullRequestMerged { .. } 
+            Event::PullRequestOpened { .. }
+            | Event::PullRequestMerged { .. }
             | Event::PullRequestClosed { .. } => EventType::PullRequest,
             Event::TagCreated { .. } => EventType::Tag,
-            Event::RepositoryCreated { .. } 
-            | Event::RepositoryDeleted { .. } => EventType::Repository,
-            Event::ReviewRequested { .. } 
-            | Event::ReviewSubmitted { .. } => EventType::Review,
-            Event::CiRunStarted { .. } 
-            | Event::CiRunCompleted { .. } => EventType::CiRun,
+            Event::RepositoryCreated { .. } | Event::RepositoryDeleted { .. } => {
+                EventType::Repository
+            }
+            Event::ReviewRequested { .. } | Event::ReviewSubmitted { .. } => EventType::Review,
+            Event::CiRunStarted { .. } | Event::CiRunCompleted { .. } => EventType::CiRun,
             _ => EventType::Push, // Default fallback
         }
     }
@@ -173,9 +170,8 @@ impl InMemoryEventBus {
         // Check branch filter (glob patterns)
         if !filter.branches.is_empty() {
             if let Some(branch) = Self::extract_branch(&envelope.event) {
-                let matches = filter.branches.iter().any(|pattern| {
-                    glob_match::glob_match(pattern, &branch)
-                });
+                let matches =
+                    filter.branches.iter().any(|pattern| glob_match::glob_match(pattern, &branch));
                 if !matches {
                     return false;
                 }
@@ -188,18 +184,18 @@ impl InMemoryEventBus {
     /// Extract repository name from event
     fn extract_repository(event: &Event) -> Option<String> {
         match event {
-            Event::Push { repository, .. } |
-            Event::PullRequestOpened { repository, .. } |
-            Event::PullRequestMerged { repository, .. } |
-            Event::PullRequestClosed { repository, .. } |
-            Event::TagCreated { repository, .. } |
-            Event::RepositoryDeleted { repository, .. } |
-            Event::CiRunStarted { repository, .. } |
-            Event::CiRunCompleted { repository, .. } |
-            Event::ReviewRequested { repository, .. } |
-            Event::ReviewSubmitted { repository, .. } |
-            Event::AiAnalysisRequested { repository, .. } |
-            Event::AiAnalysisCompleted { repository, .. } => Some(repository.clone()),
+            Event::Push { repository, .. }
+            | Event::PullRequestOpened { repository, .. }
+            | Event::PullRequestMerged { repository, .. }
+            | Event::PullRequestClosed { repository, .. }
+            | Event::TagCreated { repository, .. }
+            | Event::RepositoryDeleted { repository, .. }
+            | Event::CiRunStarted { repository, .. }
+            | Event::CiRunCompleted { repository, .. }
+            | Event::ReviewRequested { repository, .. }
+            | Event::ReviewSubmitted { repository, .. }
+            | Event::AiAnalysisRequested { repository, .. }
+            | Event::AiAnalysisCompleted { repository, .. } => Some(repository.clone()),
             Event::RepositoryCreated { repository } => Some(repository.name.clone()),
         }
     }
@@ -207,8 +203,7 @@ impl InMemoryEventBus {
     /// Extract branch from event
     fn extract_branch(event: &Event) -> Option<String> {
         match event {
-            Event::Push { branch, .. } |
-            Event::CiRunStarted { branch, .. } => Some(branch.clone()),
+            Event::Push { branch, .. } | Event::CiRunStarted { branch, .. } => Some(branch.clone()),
             Event::PullRequestOpened { from_branch, .. } => Some(from_branch.clone()),
             _ => None,
         }
@@ -218,8 +213,7 @@ impl InMemoryEventBus {
 #[async_trait]
 impl EventBusTrait for InMemoryEventBus {
     async fn publish(&self, event: EventEnvelope) -> Result<(), Box<dyn std::error::Error>> {
-        self.event_sender.send(event).await
-            .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
+        self.event_sender.send(event).await.map_err(|e| Box::new(e) as Box<dyn std::error::Error>)
     }
 
     async fn subscribe(
@@ -228,7 +222,7 @@ impl EventBusTrait for InMemoryEventBus {
         handler: Box<dyn EventHandler>,
     ) -> Result<(), Box<dyn std::error::Error>> {
         info!("Registering handler: {}", name);
-        
+
         // Store handler
         let handler = Arc::new(handler);
         self.handlers.insert(name.clone(), handler.clone());
@@ -236,7 +230,7 @@ impl EventBusTrait for InMemoryEventBus {
         // Update subscription index for quick lookup
         let filter = handler.filter();
         let mut subs = self.subscriptions.write().await;
-        
+
         if filter.event_types.is_empty() {
             // Subscribe to all event types
             for event_type in [
@@ -247,16 +241,12 @@ impl EventBusTrait for InMemoryEventBus {
                 EventType::Review,
                 EventType::CiRun,
             ] {
-                subs.entry(event_type)
-                    .or_insert_with(HashSet::new)
-                    .insert(name.clone());
+                subs.entry(event_type).or_insert_with(HashSet::new).insert(name.clone());
             }
         } else {
             // Subscribe to specific event types
             for event_type in &filter.event_types {
-                subs.entry(*event_type)
-                    .or_insert_with(HashSet::new)
-                    .insert(name.clone());
+                subs.entry(*event_type).or_insert_with(HashSet::new).insert(name.clone());
             }
         }
 
@@ -265,7 +255,7 @@ impl EventBusTrait for InMemoryEventBus {
 
     async fn unsubscribe(&self, name: &str) -> Result<(), Box<dyn std::error::Error>> {
         info!("Unregistering handler: {}", name);
-        
+
         // Remove handler
         self.handlers.remove(name);
 

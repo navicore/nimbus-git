@@ -71,7 +71,7 @@ pub enum Event {
         commits: Vec<Commit>,
         pusher: String,
     },
-    
+
     PullRequestOpened {
         id: Uuid,
         repository: String,
@@ -80,34 +80,34 @@ pub enum Event {
         title: String,
         author: String,
     },
-    
+
     PullRequestMerged {
         id: Uuid,
         repository: String,
         merge_commit: String,
     },
-    
+
     PullRequestClosed {
         id: Uuid,
         repository: String,
     },
-    
+
     TagCreated {
         repository: String,
         tag: String,
         target: String,
         tagger: String,
     },
-    
+
     // Repository Events
     RepositoryCreated {
         repository: Repository,
     },
-    
+
     RepositoryDeleted {
         repository: String,
     },
-    
+
     // CI/CD Events (from plugins)
     CiRunStarted {
         id: Uuid,
@@ -115,14 +115,14 @@ pub enum Event {
         branch: String,
         plugin: String,
     },
-    
+
     CiRunCompleted {
         id: Uuid,
         repository: String,
         status: CiStatus,
         plugin: String,
     },
-    
+
     // Review Events (from plugins)
     ReviewRequested {
         pull_request_id: Uuid,
@@ -130,7 +130,7 @@ pub enum Event {
         reviewer: String,
         plugin: String,
     },
-    
+
     ReviewSubmitted {
         pull_request_id: Uuid,
         repository: String,
@@ -138,7 +138,7 @@ pub enum Event {
         status: ReviewStatus,
         plugin: String,
     },
-    
+
     // AI Events (from plugins)
     AiAnalysisRequested {
         id: Uuid,
@@ -146,7 +146,7 @@ pub enum Event {
         context: AnalysisContext,
         plugin: String,
     },
-    
+
     AiAnalysisCompleted {
         id: Uuid,
         repository: String,
@@ -197,10 +197,10 @@ pub enum SuggestionSeverity {
 pub trait EventHandler: Send + Sync {
     /// Handle an event
     async fn handle(&self, event: EventEnvelope) -> Result<(), Box<dyn std::error::Error>>;
-    
+
     /// Get the filter for events this handler wants
     fn filter(&self) -> EventFilter;
-    
+
     /// Health check
     async fn health_check(&self) -> bool {
         true
@@ -212,17 +212,17 @@ pub trait EventHandler: Send + Sync {
 pub trait EventBus: Send + Sync {
     /// Publish an event to all interested subscribers
     async fn publish(&self, event: EventEnvelope) -> Result<(), Box<dyn std::error::Error>>;
-    
+
     /// Subscribe a handler to events
     async fn subscribe(
         &self,
         name: String,
         handler: Box<dyn EventHandler>,
     ) -> Result<(), Box<dyn std::error::Error>>;
-    
+
     /// Unsubscribe a handler
     async fn unsubscribe(&self, name: &str) -> Result<(), Box<dyn std::error::Error>>;
-    
+
     /// Get subscriber count
     async fn subscriber_count(&self) -> usize;
 }

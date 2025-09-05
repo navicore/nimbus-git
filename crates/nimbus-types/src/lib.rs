@@ -1,5 +1,5 @@
 //! Shared types for Nimbus Git platform
-//! 
+//!
 //! Single-owner model: Each instance has one owner and multiple collaborators.
 //! This is NOT a GitHub clone - it's a personal git platform.
 
@@ -136,16 +136,16 @@ pub struct Plugin {
 pub enum NimbusError {
     #[error("Repository not found: {0}")]
     RepositoryNotFound(String),
-    
+
     #[error("Unauthorized: {0}")]
     Unauthorized(String),
-    
+
     #[error("Invalid git operation: {0}")]
     InvalidGitOperation(String),
-    
+
     #[error("Plugin error: {0}")]
     PluginError(String),
-    
+
     #[error("Internal error: {0}")]
     Internal(String),
 }

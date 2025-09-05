@@ -13,10 +13,7 @@ struct CountingHandler {
 
 impl CountingHandler {
     fn new(filter: EventFilter) -> Self {
-        Self {
-            count: Arc::new(AtomicUsize::new(0)),
-            filter,
-        }
+        Self { count: Arc::new(AtomicUsize::new(0)), filter }
     }
 
     fn get_count(&self) -> usize {
@@ -46,11 +43,7 @@ impl EventHandler for FailingHandler {
     }
 
     fn filter(&self) -> EventFilter {
-        EventFilter {
-            event_types: vec![],
-            repositories: vec![],
-            branches: vec![],
-        }
+        EventFilter { event_types: vec![], repositories: vec![], branches: vec![] }
     }
 }
 
@@ -68,9 +61,7 @@ async fn test_basic_publish_subscribe() {
     let counter = handler.count.clone();
 
     // Subscribe
-    bus.subscribe("test_handler".to_string(), Box::new(handler))
-        .await
-        .unwrap();
+    bus.subscribe("test_handler".to_string(), Box::new(handler)).await.unwrap();
 
     // Publish push event
     let event = EventEnvelope {
@@ -119,12 +110,8 @@ async fn test_multiple_subscribers() {
     let counter2 = handler2.count.clone();
 
     // Subscribe both
-    bus.subscribe("handler1".to_string(), Box::new(handler1))
-        .await
-        .unwrap();
-    bus.subscribe("handler2".to_string(), Box::new(handler2))
-        .await
-        .unwrap();
+    bus.subscribe("handler1".to_string(), Box::new(handler1)).await.unwrap();
+    bus.subscribe("handler2".to_string(), Box::new(handler2)).await.unwrap();
 
     // Publish event
     let event = EventEnvelope {
@@ -175,12 +162,8 @@ async fn test_event_filtering() {
     let pr_counter = pr_handler.count.clone();
 
     // Subscribe
-    bus.subscribe("push_handler".to_string(), Box::new(push_handler))
-        .await
-        .unwrap();
-    bus.subscribe("pr_handler".to_string(), Box::new(pr_handler))
-        .await
-        .unwrap();
+    bus.subscribe("push_handler".to_string(), Box::new(push_handler)).await.unwrap();
+    bus.subscribe("pr_handler".to_string(), Box::new(pr_handler)).await.unwrap();
 
     // Publish push event
     let push_event = EventEnvelope {
@@ -242,9 +225,7 @@ async fn test_repository_filtering() {
     });
     let counter = handler.count.clone();
 
-    bus.subscribe("repo_handler".to_string(), Box::new(handler))
-        .await
-        .unwrap();
+    bus.subscribe("repo_handler".to_string(), Box::new(handler)).await.unwrap();
 
     // Publish to matching repo
     let event1 = EventEnvelope {
@@ -302,9 +283,7 @@ async fn test_branch_filtering() {
     });
     let counter = handler.count.clone();
 
-    bus.subscribe("branch_handler".to_string(), Box::new(handler))
-        .await
-        .unwrap();
+    bus.subscribe("branch_handler".to_string(), Box::new(handler)).await.unwrap();
 
     // Push to main
     let main_event = EventEnvelope {
@@ -362,9 +341,7 @@ async fn test_glob_branch_filtering() {
     });
     let counter = handler.count.clone();
 
-    bus.subscribe("glob_handler".to_string(), Box::new(handler))
-        .await
-        .unwrap();
+    bus.subscribe("glob_handler".to_string(), Box::new(handler)).await.unwrap();
 
     // Matching branches
     for branch in ["feature/auth", "feature/ui", "feature/api"] {
@@ -424,12 +401,8 @@ async fn test_handler_failure_doesnt_affect_others() {
     let counter = good_handler.count.clone();
 
     // Subscribe both
-    bus.subscribe("good".to_string(), Box::new(good_handler))
-        .await
-        .unwrap();
-    bus.subscribe("bad".to_string(), Box::new(FailingHandler))
-        .await
-        .unwrap();
+    bus.subscribe("good".to_string(), Box::new(good_handler)).await.unwrap();
+    bus.subscribe("bad".to_string(), Box::new(FailingHandler)).await.unwrap();
 
     // Publish event
     let event = EventEnvelope {
@@ -468,9 +441,7 @@ async fn test_unsubscribe() {
     let counter = handler.count.clone();
 
     // Subscribe
-    bus.subscribe("test".to_string(), Box::new(handler))
-        .await
-        .unwrap();
+    bus.subscribe("test".to_string(), Box::new(handler)).await.unwrap();
 
     // Publish first event
     let event1 = EventEnvelope {

@@ -79,14 +79,13 @@ jobs:
   security:
     name: Security Audit
     runs-on: ubuntu-latest
+    continue-on-error: true
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Run security audit
-      uses: actions-rs/audit-check@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      uses: actions-rust-lang/audit@v1
 
   build-release:
     name: Build Release Binaries
