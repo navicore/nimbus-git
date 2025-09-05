@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
     "crates/nimbus-types",
+    "crates/nimbus-events",
     "crates/nimbus-git",
     "crates/nimbus-web",
     "crates/nimbus-auth",
