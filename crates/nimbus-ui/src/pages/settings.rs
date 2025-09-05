@@ -5,7 +5,7 @@ pub fn Settings() -> impl IntoView {
     view! {
         <div>
             <h1 class="text-3xl font-bold mb-8">"Settings"</h1>
-            
+
             <div class="space-y-6">
                 <SettingsSection title="Instance Configuration">
                     <SettingRow
@@ -80,11 +80,7 @@ fn SettingsSection(title: &'static str, children: Children) -> impl IntoView {
 }
 
 #[component]
-fn SettingRow(
-    label: &'static str,
-    value: &'static str,
-    editable: bool,
-) -> impl IntoView {
+fn SettingRow(label: &'static str, value: &'static str, editable: bool) -> impl IntoView {
     view! {
         <div class="flex items-center justify-between py-2">
             <span class="text-gray-700">{label}</span>
@@ -116,17 +112,9 @@ fn CollaboratorRow(name: &'static str, email: &'static str) -> impl IntoView {
 }
 
 #[component]
-fn PluginRow(
-    name: &'static str,
-    status: &'static str,
-    description: &'static str,
-) -> impl IntoView {
-    let status_class = if status == "Active" {
-        "text-green-600"
-    } else {
-        "text-gray-500"
-    };
-    
+fn PluginRow(name: &'static str, status: &'static str, description: &'static str) -> impl IntoView {
+    let status_class = if status == "Active" { "text-green-600" } else { "text-gray-500" };
+
     view! {
         <div class="flex items-center justify-between py-3 border-b last:border-0">
             <div>

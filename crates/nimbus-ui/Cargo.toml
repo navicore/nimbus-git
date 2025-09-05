@@ -9,9 +9,9 @@ license.workspace = true
 nimbus-types = { path = "../nimbus-types" }
 
 # Leptos
-leptos = { version = "0.6", features = ["csr", "nightly"] }
-leptos_meta = { version = "0.6", features = ["csr", "nightly"] }
-leptos_router = { version = "0.6", features = ["csr", "nightly"] }
+leptos = { version = "0.6", features = ["csr"] }
+leptos_meta = { version = "0.6", features = ["csr"] }
+leptos_router = { version = "0.6", features = ["csr"] }
 
 # Web
 web-sys = { version = "0.3", features = [
@@ -36,7 +36,7 @@ serde.workspace = true
 serde_json.workspace = true
 
 # UI Components
-tailwind-fuse = "0.3"
+tailwind_fuse = "0.3"
 
 # Utils
 console_error_panic_hook = "0.1"

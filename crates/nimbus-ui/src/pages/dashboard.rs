@@ -12,7 +12,7 @@ pub fn Dashboard() -> impl IntoView {
     view! {
         <div>
             <h1 class="text-3xl font-bold mb-8">"Dashboard"</h1>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 <StatCard title="Repositories" value="12" icon="📦"/>
                 <StatCard title="Open PRs" value="3" icon="🔄"/>

@@ -73,7 +73,7 @@ pub fn RepoList() -> impl IntoView {
 #[component]
 fn RepoItem(repo: Repo) -> impl IntoView {
     let owner = "owner"; // In single-owner model, this is always the instance owner
-    
+
     view! {
         <div class="p-4 hover:bg-gray-50">
             <div class="flex items-start justify-between">

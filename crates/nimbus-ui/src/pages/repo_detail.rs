@@ -5,7 +5,7 @@ use leptos_router::*;
 pub fn RepoDetail() -> impl IntoView {
     let params = use_params_map();
     let name = move || params.with(|p| p.get("name").cloned().unwrap_or_default());
-    
+
     view! {
         <div>
             <div class="mb-6">
@@ -39,7 +39,7 @@ fn TabButton(label: &'static str, active: bool) -> impl IntoView {
     } else {
         "px-4 py-2 text-gray-600 hover:text-gray-900"
     };
-    
+
     view! {
         <button class=class>{label}</button>
     }
@@ -64,7 +64,7 @@ fn FileExplorer() -> impl IntoView {
                     </div>
                 </div>
             </div>
-            
+
             <div class="p-4">
                 <div class="space-y-2">
                     <FileRow name="src/" is_dir=true/>
@@ -80,7 +80,7 @@ fn FileExplorer() -> impl IntoView {
 #[component]
 fn FileRow(name: &'static str, is_dir: bool) -> impl IntoView {
     let icon = if is_dir { "📁" } else { "📄" };
-    
+
     view! {
         <div class="flex items-center py-2 px-2 hover:bg-gray-50 rounded cursor-pointer">
             <span class="mr-2">{icon}</span>
@@ -104,7 +104,7 @@ fn RepoSidebar() -> impl IntoView {
                     <div>"📝 MIT License"</div>
                 </div>
             </div>
-            
+
             <div class="bg-white rounded-lg shadow p-4">
                 <h3 class="font-semibold mb-3">"Languages"</h3>
                 <div class="space-y-2">
