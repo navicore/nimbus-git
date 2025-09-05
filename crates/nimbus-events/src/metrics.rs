@@ -124,3 +124,9 @@ impl EventBusMetrics {
         self.handler_failure.with_label_values(&[handler]).inc();
     }
 }
+
+impl Default for EventBusMetrics {
+    fn default() -> Self {
+        Self::new()
+    }
+}

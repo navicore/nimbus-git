@@ -229,7 +229,7 @@ impl EventBusTrait for InMemoryEventBus {
 
         // Update subscription index for quick lookup
         let filter = handler.filter();
-        let mut subs = self.subscriptions.write().await;
+        let subs = self.subscriptions.write().await;
 
         if filter.event_types.is_empty() {
             // Subscribe to all event types
@@ -260,7 +260,7 @@ impl EventBusTrait for InMemoryEventBus {
         self.handlers.remove(name);
 
         // Remove from subscription index
-        let mut subs = self.subscriptions.write().await;
+        let subs = self.subscriptions.write().await;
         for mut entry in subs.iter_mut() {
             entry.value_mut().remove(name);
         }
@@ -287,11 +287,11 @@ mod glob_match {
             let inner = &pattern[1..pattern.len() - 1];
             return text.contains(inner);
         }
-        if pattern.starts_with('*') {
-            return text.ends_with(&pattern[1..]);
+        if let Some(stripped) = pattern.strip_prefix('*') {
+            return text.ends_with(stripped);
         }
-        if pattern.ends_with('*') {
-            return text.starts_with(&pattern[..pattern.len() - 1]);
+        if let Some(stripped) = pattern.strip_suffix('*') {
+            return text.starts_with(stripped);
         }
         pattern == text
     }

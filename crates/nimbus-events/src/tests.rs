@@ -16,6 +16,7 @@ impl CountingHandler {
         Self { count: Arc::new(AtomicUsize::new(0)), filter }
     }
 
+    #[allow(dead_code)]
     fn get_count(&self) -> usize {
         self.count.load(Ordering::SeqCst)
     }
