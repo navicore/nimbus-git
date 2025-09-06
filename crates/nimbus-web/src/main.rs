@@ -108,27 +108,23 @@ async fn handle_login(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     info!("Login request: {:?}", body);
 
-    let username = body.get("username")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| warp::reject::reject())?;
-    
-    let password = body.get("password")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| warp::reject::reject())?;
+    let username =
+        body.get("username").and_then(|v| v.as_str()).ok_or_else(warp::reject::reject)?;
+
+    let password =
+        body.get("password").and_then(|v| v.as_str()).ok_or_else(warp::reject::reject)?;
 
     // Validate login
     match auth_service.validate_owner_login(username, password).await {
         Ok(true) => {
             // Generate JWT token
             match auth_service.generate_token(username, "owner") {
-                Ok(token) => {
-                    Ok(warp::reply::json(&serde_json::json!({
-                        "success": true,
-                        "token": token,
-                        "user": username,
-                        "role": "owner"
-                    })))
-                }
+                Ok(token) => Ok(warp::reply::json(&serde_json::json!({
+                    "success": true,
+                    "token": token,
+                    "user": username,
+                    "role": "owner"
+                }))),
                 Err(e) => {
                     info!("Failed to generate token: {}", e);
                     Ok(warp::reply::json(&serde_json::json!({
@@ -138,12 +134,10 @@ async fn handle_login(
                 }
             }
         }
-        Ok(false) => {
-            Ok(warp::reply::json(&serde_json::json!({
-                "success": false,
-                "error": "Invalid credentials"
-            })))
-        }
+        Ok(false) => Ok(warp::reply::json(&serde_json::json!({
+            "success": false,
+            "error": "Invalid credentials"
+        }))),
         Err(e) => {
             info!("Login error: {}", e);
             Ok(warp::reply::json(&serde_json::json!({
@@ -192,20 +186,16 @@ async fn handle_create_token(
     body: serde_json::Value,
     auth_service: Arc<AuthService>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
-    let name = body.get("name")
-        .and_then(|v| v.as_str())
-        .ok_or_else(|| warp::reject::reject())?;
+    let name = body.get("name").and_then(|v| v.as_str()).ok_or_else(warp::reject::reject)?;
 
     let token = auth_service.generate_api_key();
-    
+
     match auth_service.store_api_token(name, &token).await {
-        Ok(_) => {
-            Ok(warp::reply::json(&serde_json::json!({
-                "success": true,
-                "name": name,
-                "token": token
-            })))
-        }
+        Ok(_) => Ok(warp::reply::json(&serde_json::json!({
+            "success": true,
+            "name": name,
+            "token": token
+        }))),
         Err(e) => {
             info!("Failed to store API token: {}", e);
             Ok(warp::reply::json(&serde_json::json!({
@@ -221,12 +211,10 @@ async fn handle_list_tokens(
     auth_service: Arc<AuthService>,
 ) -> Result<impl warp::Reply, warp::Rejection> {
     match auth_service.list_api_tokens().await {
-        Ok(tokens) => {
-            Ok(warp::reply::json(&serde_json::json!({
-                "success": true,
-                "tokens": tokens
-            })))
-        }
+        Ok(tokens) => Ok(warp::reply::json(&serde_json::json!({
+            "success": true,
+            "tokens": tokens
+        }))),
         Err(e) => {
             info!("Failed to list API tokens: {}", e);
             Ok(warp::reply::json(&serde_json::json!({
