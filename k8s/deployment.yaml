@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nimbus-web
+  namespace: nimbus
+  labels:
+    app: nimbus
+    component: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nimbus
+      component: web
+  template:
+    metadata:
+      labels:
+        app: nimbus
+        component: web
+    spec:
+      containers:
+      - name: nimbus-web
+        image: localhost/nimbus-git:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 3000
+          name: http
+        - containerPort: 22
+          name: ssh
+        env:
+        - name: NIMBUS_HOST
+          value: "0.0.0.0"
+        - name: NIMBUS_PORT
+          value: "3000"
+        - name: NIMBUS_DATA_DIR
+          value: "/data"
+        - name: NIMBUS_REPOS_DIR
+          value: "/data/repos"
+        - name: RUST_LOG
+          value: "info,nimbus=debug"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: config
+          mountPath: /data/config
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: nimbus-data
+      - name: config
+        configMap:
+          name: nimbus-config
+          optional: true

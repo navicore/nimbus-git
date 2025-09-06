@@ -5,10 +5,15 @@ edition.workspace = true
 authors.workspace = true
 license.workspace = true
 
+[[bin]]
+name = "nimbus-web"
+path = "src/main.rs"
+
 [dependencies]
 nimbus-types = { path = "../nimbus-types" }
 nimbus-events = { path = "../nimbus-events" }
 nimbus-git = { path = "../nimbus-git" }
+nimbus-auth = { path = "../nimbus-auth" }
 
 # Web
 warp.workspace = true
@@ -23,6 +28,7 @@ serde_json.workspace = true
 
 # Observability
 tracing.workspace = true
+tracing-subscriber.workspace = true
 prometheus.workspace = true
 
 # Error handling
